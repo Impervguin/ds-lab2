@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine AS build
+FROM golang:1.27-alpine AS build
 WORKDIR /src
 
 COPY go.mod go.sum ./
@@ -10,8 +10,9 @@ RUN CGO_ENABLED=0 go build -o /out/library ./cmd
 FROM alpine:3.20
 WORKDIR /app
 
+# The migrations are embedded into the binary (internal/migrations), so the
+# image needs nothing but the binary itself.
 COPY --from=build /out/library ./library
-COPY --from=build /src/migrations ./migrations
 
 EXPOSE 8060
 ENTRYPOINT ["./library"]

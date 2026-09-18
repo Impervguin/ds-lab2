@@ -15,5 +15,6 @@ type Library struct {
 }
 
 type LibraryRepository interface {
-	ListByCity(ctx context.Context, city string, page, size int) ([]Library, error)
+	ListByCity(ctx context.Context, city string, limit, offset int) ([]Library, int, error)
+	Get(ctx context.Context, libraryUID uuid.UUID) (*Library, error)
 }
