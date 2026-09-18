@@ -62,16 +62,10 @@ services:
       - postgres
     environment:
       HTTP_PORT: 8070
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: program
-      POSTGRES_PASSWORD: test
-      POSTGRES_DB: reservations
-      LOG_LEVEL: info
-      LOG_PRETTY: "false"
-      SERVICE_NAME: reservation
+      DATABASE_URL: postgresql://program:test@postgres:5432/reservations
+      LOG_LEVEL: INFO
     ports:
-      - "8070:8080"
+      - "8070:8070"
 
   gateway:
     build: ./gateway

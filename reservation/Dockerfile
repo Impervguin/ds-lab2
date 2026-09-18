@@ -1,22 +1,22 @@
-FROM node:22-alpine AS build
+FROM python:3.14-slim AS build
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+RUN pip install --no-cache-dir poetry==2.4.3 \
+    && poetry config virtualenvs.in-project true
 
-COPY tsconfig*.json nest-cli.json ./
+COPY pyproject.toml poetry.lock* README.md ./
+RUN poetry install --no-root --only main --no-interaction --no-ansi
+
 COPY src ./src
-RUN npm run build
+RUN poetry install --only-root --no-interaction --no-ansi
 
-FROM node:22-alpine
+FROM python:3.14-slim
 WORKDIR /app
-ENV NODE_ENV=production
 
-COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+COPY --from=build /app/.venv ./.venv
+COPY --from=build /app/src ./src
 
-# dist carries the compiled sources and the .sql migrations (nest-cli assets).
-COPY --from=build /app/dist ./dist
+ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8070
-CMD ["node", "dist/main.js"]
+CMD ["uvicorn", "reservation.main:app", "--host", "0.0.0.0", "--port", "8070"]
