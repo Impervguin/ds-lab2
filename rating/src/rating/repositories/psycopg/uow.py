@@ -6,10 +6,7 @@ from typing import Self
 from psycopg import AsyncConnection
 from psycopg_pool import AsyncConnectionPool
 
-from ..protocols import (
-    RatingRepository,
-    UnitOfWorkFactory,
-)
+from ..protocols import RatingRepository, UnitOfWorkFactory
 from .rating import PsycopgRatingRepository
 
 
@@ -56,7 +53,7 @@ class PsycopgUnitOfWork:
         self._finalized = True
 
     @property
-    def rating_repository(self) -> RatingRepository:
+    def ratings(self) -> RatingRepository:
         return PsycopgRatingRepository(self._active_connection)
 
     @property

@@ -1,15 +1,27 @@
 from __future__ import annotations
 
-from typing import Annotated, Final
+from enum import StrEnum
+from typing import Final
 
 from pydantic import BaseModel, ConfigDict, Field
 
-MIN_STARS: Final[int] = 0
-MAX_STARS: Final[int] = 100
-DEFAULT_STARS: Final[int] = 10
+MIN_STARS: Final = 1
+MAX_STARS: Final = 100
+INITIAL_STARS: Final = 75
+STARS_PER_BOOK: Final = 3
 
-def _clamp_stars(v: int) -> int:
-    return min(max(v, MIN_STARS), MAX_STARS)
+
+class ReservationStatus(StrEnum):
+    RENTED = "RENTED"
+    RETURNED = "RETURNED"
+    EXPIRED = "EXPIRED"
+
+
+class BookCondition(StrEnum):
+    EXCELLENT = "EXCELLENT"
+    GOOD = "GOOD"
+    BAD = "BAD"
+
 
 class Rating(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -19,7 +31,23 @@ class Rating(BaseModel):
 
     @staticmethod
     def initial(username: str) -> Rating:
-        return Rating(username=username, stars=DEFAULT_STARS)
-    
+        return Rating(username=username, stars=INITIAL_STARS)
+
+    @property
+    def max_books(self) -> int:
+        return self.stars // STARS_PER_BOOK
+
     def apply(self, delta: int) -> Rating:
-        return Rating(username=self.username, stars=_clamp_stars(self.stars + delta))
+        stars = min(max(self.stars + delta, MIN_STARS), MAX_STARS)
+        return self.model_copy(update={"stars": stars})
+
+
+class RatingChange(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    rating: Rating
+    delta: int
+
+    @staticmethod
+    def between(before: Rating, after: Rating) -> RatingChange:
+        return RatingChange(rating=after, delta=after.stars - before.stars)
