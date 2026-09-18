@@ -1,23 +1,30 @@
-
 package usecase
 
-// LibraryClient is the port to the Library service.
+import (
+	"context"
+
+	"github.com/google/uuid"
+
+	"github.com/Impervguin/ds-lab2/gateway/internal/domain"
+)
+
 type LibraryService interface {
-	// TODO: ListLibraries(ctx context.Context, city string, page, size int) (...)
-	// TODO: ListBooks(ctx context.Context, libraryUID string, page, size int, showAll bool) (...)
-	// TODO: ReserveBook(ctx context.Context, libraryUID, bookUID string) error
-	// TODO: ReleaseBook(ctx context.Context, libraryUID, bookUID string) error
+	ListLibraries(ctx context.Context, city string, page, size int) (Page[domain.Library], error)
+	GetLibrary(ctx context.Context, libraryUID uuid.UUID) (*domain.Library, error)
+	ListBooks(ctx context.Context, libraryUID uuid.UUID, page, size int, showAll bool) (Page[domain.LibraryBook], error)
+	GetBook(ctx context.Context, bookUID uuid.UUID) (*domain.Book, error)
+	TakeBook(ctx context.Context, libraryUID, bookUID uuid.UUID) (*domain.BookCopy, error)
+	ReturnBook(ctx context.Context, libraryUID, bookUID uuid.UUID, condition domain.BookCondition) (*domain.BookCopy, error)
 }
 
-// ReservationClient is the port to the Reservation service.
 type ReservationService interface {
-	// TODO: ListReservations(ctx context.Context, username string) (...)
-	// TODO: CreateReservation(ctx context.Context, username, bookUID, libraryUID, tillDate string) (...)
-	// TODO: ReturnReservation(ctx context.Context, reservationUID, condition, date string) error
+	ListReservations(ctx context.Context, username string, status domain.ReservationStatus) ([]domain.Reservation, error)
+	CountReservations(ctx context.Context, username string, status domain.ReservationStatus) (int, error)
+	CreateReservation(ctx context.Context, username string, request domain.NewReservation) (*domain.Reservation, error)
+	ReturnReservation(ctx context.Context, username string, reservationUID uuid.UUID, date domain.Date) (*domain.Reservation, error)
 }
 
-// RatingClient is the port to the Rating service.
 type RatingService interface {
-	// TODO: GetRating(ctx context.Context, username string) (int, error)
-	// TODO: UpdateRating(ctx context.Context, username string, delta int) error
+	GetRating(ctx context.Context, username string) (*domain.Rating, error)
+	CloseReservation(ctx context.Context, username string, closed domain.ClosedReservation) (*domain.RatingChange, error)
 }

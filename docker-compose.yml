@@ -45,7 +45,7 @@ services:
       LOG_FORMAT: json
       SERVICE_NAME: library
     ports:
-      - "8060:8080"
+      - "8060:8060"
 
   reservation:
     build: ./reservation
