@@ -12,6 +12,8 @@ services:
       - ./postgres/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
+    networks:
+      - pg-net
 
   rating:
     build: ./rating
@@ -26,6 +28,8 @@ services:
       LOG_LEVEL: INFO
     ports:
       - "8050:8050"
+    networks:
+      - pg-net
 
   library:
     build: ./library
@@ -46,6 +50,8 @@ services:
       SERVICE_NAME: library
     ports:
       - "8060:8060"
+    networks:
+      - pg-net
 
   reservation:
     build: ./reservation
@@ -60,6 +66,8 @@ services:
       LOG_LEVEL: INFO
     ports:
       - "8070:8070"
+    networks:
+      - pg-net
 
   gateway:
     build: ./gateway
@@ -78,8 +86,13 @@ services:
       LOG_LEVEL: info
       LOG_FORMAT: json
       SERVICE_NAME: gateway
+    networks:
+      - pg-net
     ports:
       - "8080:8080"
 
 volumes:
   db-data:
+
+networks:
+  pg-net:
